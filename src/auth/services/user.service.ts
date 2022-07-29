@@ -2,7 +2,6 @@ import { User } from '../schemas/user.schema';
 import { UserModel } from '../models/user.model';
 
 export default class UserService {
-
     public async findAllUsers() {
         return await User.find();
     }
@@ -15,26 +14,30 @@ export default class UserService {
         return await User.findOne({ email: email }).select('+password');
     }
 
-
     public async createUser(user: UserModel) {
+        const createdUser = await User.create(user);
+        return createdUser.toJSON();
+    }
 
-        try {
-            const createdUser = await User.create(user);
-            return createdUser.toJSON();
+    public async UpdateName(id: string, name: string) {
+        
+        const filter = { id: id };
+        const update = { name: name };
 
-        } catch (err) {
-            return err;
-        }
+        const userToUpdate = await User.findOne({ id: id });
+
+        if (!userToUpdate) 
+            return;
+
+        return await User.findOneAndUpdate(filter, update);
     }
 
     public async deleteUser(id: string) {
-        console.log(id)
-        
         const userToDelete = await User.findOne({ id: id });
 
-        if(!userToDelete)
-            return
+        if (!userToDelete) 
+            return;
 
-        return await User.deleteOne({ id: userToDelete.id }); 
+        return await User.deleteOne({ id: userToDelete.id });
     }
 }

@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Middleware, Post } from '@overnightjs/core';
+import { Controller, Delete, Get, Middleware, Post, Put } from '@overnightjs/core';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
 import UserService from '../services/user.service';
@@ -76,6 +76,23 @@ export default class AuthController {
         }
     }
 
+    @Put('')
+    @Middleware(authMiddleware)
+    public async updateUser(req: Request, res: Response) {
+        
+        const { id } = res.locals.user;
+        const { name } = req.body; 
+
+        try {
+
+            const updatedUser = await this.userService.UpdateName(id, name); 
+            return res.status(200).send({ sucess: true, updatedUser });
+
+        } catch (error) {
+            return res.status(400).send({ sucess: false, message: 'Update failed' });
+        }
+    }
+
 
     @Delete('')
     @Middleware(authMiddleware)
@@ -93,7 +110,7 @@ export default class AuthController {
             if(!user)
                 return res.status(404).send({ sucess: false, message: `User doesn't exist` });
 
-                
+
             return res.status(200).send({ sucess: true, deletedUsers: user.deletedCount });
 
         } catch (error) {

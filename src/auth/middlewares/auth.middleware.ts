@@ -29,6 +29,7 @@ export function authMiddleware(
         if(decoded instanceof JsonWebTokenError) 
             res.status?.(401).send({ sucess: false, message: 'Token malformed' })
 
+            
         res.locals.user = decoded; 
         return next();
 
