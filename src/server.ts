@@ -1,6 +1,8 @@
 import { Server } from '@overnightjs/core';
 import * as http from 'http';
 import express from 'express';
+import * as database from './database';
+import AuthController from './auth/controllers/auth.controller';
 
 export class SetupServer extends Server {
     private server?: http.Server;
@@ -11,7 +13,8 @@ export class SetupServer extends Server {
 
     public init(): void {
         this.setupExpress();
-        //this.setupControllers();
+        this.setupControllers();
+        this.setupDatabase();
     }
 
     private setupExpress(): void {
@@ -19,8 +22,14 @@ export class SetupServer extends Server {
         this.app.use(express.urlencoded({ extended: true }));
     }
 
-    // private setupControllers(): void {
-    // }
+    private setupControllers(): void {
+        const authController = new AuthController();
+        this.addControllers(authController);
+    }
+
+    private async setupDatabase(): Promise<void> {
+        await database.connect();
+    }
 
     public start(): void {
         this.server = this.app.listen(this.port, () => {
