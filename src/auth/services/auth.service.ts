@@ -1,12 +1,8 @@
 import bcrypt from 'bcryptjs';
 import *  as jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
+import config from '../../config/default'
 
 export default class AuthService {
-
-    constructor() {
-        dotenv.config();
-    }
 
     public static async hashPassword(password: string, salt = bcrypt.genSaltSync(12)): Promise<string> {
         return await bcrypt.hash(password, salt);
@@ -30,6 +26,6 @@ export default class AuthService {
         if (!/^Bearer$/i.test(scheme)) 
             return; 
 
-        return jwt.verify(token, `${process.env.AUTH_KEY}`); 
+        return jwt.verify(token, config.AUTH_KEY); 
     }
 }

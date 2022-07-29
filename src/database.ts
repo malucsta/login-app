@@ -1,10 +1,8 @@
 import mongoose, { connection } from 'mongoose';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import config from './config/default'
 
 export const connect = async (): Promise<void> => {
-    const db = await mongoose.connect(`${process.env.MONGOURL}`);
+    const db = await mongoose.connect(config.MONGOURL);
     console.log('server connected to database:', db.connection.db.databaseName);
 };
 
