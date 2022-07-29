@@ -1,8 +1,9 @@
-import { Controller, Post } from '@overnightjs/core';
+import { Controller, Delete, Get, Middleware, Post } from '@overnightjs/core';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
 import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 @Controller('auth')
 export default class AuthController {
@@ -11,6 +12,18 @@ export default class AuthController {
 
     constructor() {
         this.userService = new UserService();
+    }
+
+
+    @Get('')
+    @Middleware(authMiddleware)
+    public async findAllUsers(req: Request, res: Response) {
+        try {
+            const users = await this.userService.findAllUsers();
+            return res.status(200).send({ sucess: true, users }); 
+        } catch(error) {
+            return res.status(400).send({ sucess: false, message: 'Operation failed' });
+        }
     }
 
 
@@ -40,7 +53,7 @@ export default class AuthController {
 
 
     @Post('login')
-    public async authenticateUSer(req: Request, res: Response) {
+    public async authenticateUser(req: Request, res: Response) {
 
         const { email, password } = req.body;
 
@@ -60,6 +73,31 @@ export default class AuthController {
 
         } catch (error) {
             return res.status(400).send({ sucess: false, message: 'Registration failed' });
+        }
+    }
+
+
+    @Delete('')
+    @Middleware(authMiddleware)
+    public async deleteUser(_: Request, res: Response) {
+        
+        const { id } = res.locals.user
+
+        try {
+
+            if(!id)
+                return res.status(404).send({ sucess: false, message: `Delete failed` });
+            
+            const user = await this.userService.deleteUser(id); 
+
+            if(!user)
+                return res.status(404).send({ sucess: false, message: `User doesn't exist` });
+
+                
+            return res.status(200).send({ sucess: true, deletedUsers: user.deletedCount });
+
+        } catch (error) {
+            return res.status(400).send({ sucess: false, message: 'Delete failed' });
         }
     }
 }

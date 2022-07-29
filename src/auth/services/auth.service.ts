@@ -2,14 +2,13 @@ import bcrypt from 'bcryptjs';
 import *  as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 
-
 export default class AuthService {
 
     constructor() {
         dotenv.config();
     }
 
-    public static async hashPassword(password: string, salt = 12): Promise<string> {
+    public static async hashPassword(password: string, salt = bcrypt.genSaltSync(12)): Promise<string> {
         return await bcrypt.hash(password, salt);
     }
 
@@ -19,12 +18,18 @@ export default class AuthService {
 
     public static async generateToken(id: string): Promise<string> {
         return jwt.sign({ id: id }, `${process.env.AUTH_KEY}`, {
-            //1day
+            //1 day
             expiresIn: 86400,
         })
     }
 
-    public async decodeToken(token: string) {
-        return jwt.verify(token, `${process.env.AUTHKEY}`);
+    public static validateToken(header: string | string[]) : string | jwt.JwtPayload | undefined {
+
+        const [scheme, token] = header;
+
+        if (!/^Bearer$/i.test(scheme)) 
+            return; 
+
+        return jwt.verify(token, `${process.env.AUTH_KEY}`); 
     }
 }
