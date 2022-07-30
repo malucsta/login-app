@@ -12,8 +12,8 @@ export default class AuthService {
         return await bcrypt.compare(password, hashedPassword);
     }
 
-    public static async generateToken(id: string): Promise<string> {
-        return jwt.sign({ id: id }, config.AUTH_KEY, {
+    public static async generateToken(id: string, isAdmin: boolean): Promise<string> {
+        return jwt.sign({ id: id, isAdmin: isAdmin }, config.AUTH_KEY, {
             //1 day
             expiresIn: 86400,
         })
@@ -27,5 +27,14 @@ export default class AuthService {
             return; 
 
         return jwt.verify(token, config.AUTH_KEY); 
+    }
+
+    public static hasAdminRole(decoded: string | jwt.JwtPayload | undefined) : boolean {
+        if(decoded === undefined) return false;
+        return AuthService.extractRole(decoded) === true;
+    }
+
+    public static extractRole(decoded: string| jwt.JwtPayload) : boolean {
+        return JSON.parse(JSON.stringify(decoded)).isAdmin; 
     }
 }

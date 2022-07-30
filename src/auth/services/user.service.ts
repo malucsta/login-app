@@ -7,7 +7,7 @@ export default class UserService {
     }
 
     public async findUserById(id: string) {
-        return await User.findOne({ id: id });
+        return await User.findOne({ _id: id });
     }
 
     public async findUserByEmail(email: string) {
@@ -25,10 +25,10 @@ export default class UserService {
 
     public async UpdateName(id: string, name: string) {
         
-        const filter = { id: id };
+        const filter = { _id: id };
         const update = { name: name };
 
-        const userToUpdate = await User.findOne({ id: id });
+        const userToUpdate = await User.findOne({ _id: id });
 
         if (!userToUpdate) 
             return;
@@ -37,11 +37,11 @@ export default class UserService {
     }
 
     public async deleteUser(id: string) {
-        const userToDelete = await User.findOne({ id: id });
+        const userToDelete = await User.findOne({ _id: id });
 
         if (!userToDelete) 
             return;
 
-        return await User.deleteOne({ id: userToDelete.id });
+        return await User.deleteOne({ _id: userToDelete.id });
     }
 }

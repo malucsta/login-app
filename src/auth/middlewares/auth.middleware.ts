@@ -24,10 +24,10 @@ export function authMiddleware(
         const decoded = AuthService.validateToken(parts); 
 
         if(!decoded || decoded === undefined)
-            res.status?.(401).send({ sucess: false, message: 'Token is invalid' });
+            return res.status?.(401).send({ sucess: false, message: 'Token is invalid' });
 
         if(decoded instanceof JsonWebTokenError) 
-            res.status?.(401).send({ sucess: false, message: 'Token malformed' })
+            return res.status?.(401).send({ sucess: false, message: 'Token malformed' })
 
             
         res.locals.user = decoded; 

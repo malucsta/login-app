@@ -4,6 +4,7 @@ import { UserModel } from '../models/user.model';
 import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { adminMiddleware } from '../middlewares/admin.middleware';
 
 @Controller('auth')
 export default class AuthController {
@@ -17,10 +18,16 @@ export default class AuthController {
 
     @Get('')
     @Middleware(authMiddleware)
-    public async findAllUsers(req: Request, res: Response) {
+    @Middleware(adminMiddleware)
+    public async findAllUsers(_: Request, res: Response) {
         try {
             const users = await this.userService.findAllUsers();
+
+            if(!users) 
+                return res.status(404).send({ sucess: false, message: 'No users found' });
+
             return res.status(200).send({ sucess: true, users }); 
+
         } catch(error) {
             return res.status(400).send({ sucess: false, message: 'Operation failed' });
         }
@@ -53,7 +60,8 @@ export default class AuthController {
         const user: UserModel = {
             name: req.body.name,
             email: req.body.email,
-            password: req.body.password
+            password: req.body.password,
+            isAdmin: req.body.isAdmin
         };
 
         try {
@@ -68,8 +76,8 @@ export default class AuthController {
             if(!createdUser)
                 return res.status(500).send({ sucess: false, message: 'Registration failed' });
 
-            const token = await AuthService.generateToken(createdUser.id);
-            return res.send({ sucess: true, createdUser, token: token });
+            const token = await AuthService.generateToken(createdUser.id, createdUser.isAdmin);
+            return res.status(200).send({ sucess: true, createdUser, token: token });
 
         } catch (error) {
             return res.status(400).send({ sucess: false, message: 'Registration failed' });
@@ -91,7 +99,7 @@ export default class AuthController {
             if (!await AuthService.comparePassword(password, user.password))
                 return res.status(400).send({ sucess: false, message: 'Incorrect password' });
 
-            const token = await AuthService.generateToken(user.id);
+            const token = await AuthService.generateToken(user.id, user.isAdmin);
 
             return res.status(200).send({ sucess: true, token: token });
 
@@ -121,7 +129,7 @@ export default class AuthController {
 
     @Delete('')
     @Middleware(authMiddleware)
-    public async deleteUser(_: Request, res: Response) {
+    public async deleteOwnUser(_: Request, res: Response) {
         
         const { id } = res.locals.user
 
@@ -129,6 +137,32 @@ export default class AuthController {
 
             if(!id)
                 return res.status(404).send({ sucess: false, message: `Delete failed` });
+            
+            const user = await this.userService.deleteUser(id); 
+
+            if(!user)
+                return res.status(404).send({ sucess: false, message: `User doesn't exist` });
+
+
+            return res.status(200).send({ sucess: true, deletedUsers: user.deletedCount });
+
+        } catch (error) {
+            return res.status(400).send({ sucess: false, message: 'Delete failed' });
+        }
+    }
+
+
+    @Delete(':id')
+    @Middleware(authMiddleware)
+    @Middleware(adminMiddleware)
+    public async deleteOtherUser(req: Request, res: Response) {
+        
+        const { id } = req.params;
+
+        try {
+
+            if(!id)
+                return res.status(404).send({ sucess: false, message: `Provide the id of user to delete` });
             
             const user = await this.userService.deleteUser(id); 
 

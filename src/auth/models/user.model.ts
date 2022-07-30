@@ -4,5 +4,6 @@ export interface BaseUser {
 }
 
 export interface UserModel extends BaseUser {
-    name: string
+    name: string, 
+    isAdmin: boolean,
 }
