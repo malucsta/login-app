@@ -6,11 +6,15 @@ export default class UserService {
         return await User.find();
     }
 
-    public async findUser(email: string) {
+    public async findUserById(id: string) {
+        return await User.findOne({ id: id });
+    }
+
+    public async findUserByEmail(email: string) {
         return await User.findOne({ email: email });
     }
 
-    public async findUserWithPassword(email: string) {
+    public async findUserByEmailWithPassword(email: string) {
         return await User.findOne({ email: email }).select('+password');
     }
 

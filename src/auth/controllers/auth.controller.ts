@@ -27,6 +27,26 @@ export default class AuthController {
     }
 
 
+    @Get('me')
+    @Middleware(authMiddleware)
+    public async me(_: Request, res: Response) {
+
+        const { id } = res.locals.user;
+
+        try {
+            const user = await this.userService.findUserById(id);
+
+            if(!user)
+                return res.status(400).send({ sucess: false, message: `This user doesn't exist anymore` }); 
+
+            return res.status(200).send({ sucess: true, user: user });
+             
+        } catch(error) {
+            return res.status(400).send({ sucess: false, message: 'Operation failed' });
+        }
+    }
+
+
     @Post('register')
     public async createUser(req: Request, res: Response) {
 
@@ -38,7 +58,7 @@ export default class AuthController {
 
         try {
 
-            const foundUser = await this.userService.findUser(user.email);
+            const foundUser = await this.userService.findUserByEmail(user.email);
 
             if (foundUser)
                 return res.status(409).send({ sucess: false, message: 'User already exists' });
@@ -63,7 +83,7 @@ export default class AuthController {
         const { email, password } = req.body;
 
         try {
-            const user = await this.userService.findUserWithPassword(email)
+            const user = await this.userService.findUserByEmailWithPassword(email)
 
             if (!user)
                 return res.status(400).send({ sucess: false, message: 'User not found' });
