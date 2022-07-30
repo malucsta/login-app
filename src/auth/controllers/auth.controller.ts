@@ -44,7 +44,12 @@ export default class AuthController {
                 return res.status(409).send({ sucess: false, message: 'User already exists' });
 
             const createdUser = await this.userService.createUser(user);
-            return res.send({ createdUser });
+
+            if(!createdUser)
+                return res.status(500).send({ sucess: false, message: 'Registration failed' });
+
+            const token = await AuthService.generateToken(createdUser.id);
+            return res.send({ createdUser, token: token });
 
         } catch (error) {
             return res.status(400).send({ sucess: false, message: 'Registration failed' });
@@ -52,7 +57,7 @@ export default class AuthController {
     }
 
 
-    @Post('login')
+    @Post('authenticate')
     public async authenticateUser(req: Request, res: Response) {
 
         const { email, password } = req.body;

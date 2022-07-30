@@ -15,8 +15,8 @@ export default class UserService {
     }
 
     public async createUser(user: UserModel) {
-        const createdUser = await User.create(user);
-        return createdUser.toJSON();
+        await User.create(user);
+        return await User.findOne({ email: user.email });
     }
 
     public async UpdateName(id: string, name: string) {
