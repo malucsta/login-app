@@ -13,7 +13,7 @@ export default class AuthService {
     }
 
     public static async generateToken(id: string): Promise<string> {
-        return jwt.sign({ id: id }, `${process.env.AUTH_KEY}`, {
+        return jwt.sign({ id: id }, config.AUTH_KEY, {
             //1 day
             expiresIn: 86400,
         })
