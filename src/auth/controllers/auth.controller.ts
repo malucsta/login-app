@@ -49,7 +49,7 @@ export default class AuthController {
                 return res.status(500).send({ sucess: false, message: 'Registration failed' });
 
             const token = await AuthService.generateToken(createdUser.id);
-            return res.send({ createdUser, token: token });
+            return res.send({ sucess: true, createdUser, token: token });
 
         } catch (error) {
             return res.status(400).send({ sucess: false, message: 'Registration failed' });
