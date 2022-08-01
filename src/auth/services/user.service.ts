@@ -28,7 +28,7 @@ export default class UserService {
         const filter = { _id: id };
         const update = { name: name };
 
-        const userToUpdate = await User.findOne({ _id: id });
+        const userToUpdate = await User.findOne(filter);
 
         if (!userToUpdate) 
             return;
