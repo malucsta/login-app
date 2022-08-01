@@ -5,6 +5,7 @@ import UserService from '../services/user.service';
 import AuthService from '../services/auth.service';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { adminMiddleware } from '../middlewares/admin.middleware';
+import { deepSanitize } from 'src/helpers/deepSanitize';
 
 @Controller('auth')
 export default class AuthController {
@@ -60,7 +61,7 @@ export default class AuthController {
         const user: UserModel = {
             name: req.body.name,
             email: req.body.email,
-            password: req.body.password,
+            password: deepSanitize(req.body.password),
             isAdmin: req.body.isAdmin
         };
 

@@ -1,5 +1,6 @@
 import { User } from '../schemas/user.schema';
 import { UserModel } from '../models/user.model';
+import { deepSanitize } from 'src/helpers/deepSanitize';
 
 export default class UserService {
     public async findAllUsers() {
@@ -26,7 +27,7 @@ export default class UserService {
     public async UpdateName(id: string, name: string) {
         
         const filter = { _id: id };
-        const update = { name: name };
+        const update = { name: deepSanitize(name)  };
 
         const userToUpdate = await User.findOne(filter);
 
