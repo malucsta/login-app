@@ -1,6 +1,6 @@
 import { User } from '../schemas/user.schema';
 import { UserModel } from '../models/user.model';
-import { deepSanitize } from 'src/helpers/deepSanitize';
+import { deepSanitize } from '../../helpers/deepSanitize';
 
 export default class UserService {
     public async findAllUsers() {
